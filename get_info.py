@@ -17,9 +17,9 @@ async def get_media_info():
 
     if session:  # there needs to be a media session running
         if session.source_app_user_model_id == TARGET_ID:
-            pinfo = session.get_timeline_properties()
+            pinfo = session.get_playback_info()
             info = await session.try_get_media_properties_async()
-            timeline = await session.try_
+            timeline = session.get_timeline_properties()
             # song_attr[0] != '_' ignores system attributes
             info_dict = {
                 "artist": info.artist,
@@ -28,7 +28,7 @@ async def get_media_info():
                 "playback_status": pinfo.playback_status,
                 "duration": pinfo.playback_type,
                 "end_time": timeline.end_time,
-                "last_updated": timeline.last_updated,
+                "last_updated": timeline.last_updated_time,
                 "max_seek": timeline.max_seek_time,
                 "min_seek": timeline.min_seek_time,
                 "position": timeline.position,
