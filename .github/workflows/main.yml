@@ -1,22 +1,22 @@
 
 name: Package Application with Pyinstaller
 
-on: push
+on:
+  push:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['windows-latest', 'ubuntu-latest, 'macos-latest']
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Package Application
-      uses: JackMcKew/pyinstaller-action-windows@main
+    - uses: actions/setup-python@v2
       with:
-        path: src
+        python-version: 3.7
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: name-of-artifact
-        path: src/dist/windows
+    - run: pip install -r ./src/requirements.txt pyinstaller
+    - run: pyinstaller ./src/main.py --onefile
