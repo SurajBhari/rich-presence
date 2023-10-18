@@ -1,5 +1,4 @@
 import asyncio
-from discordrp import Presence
 import json
 
 
