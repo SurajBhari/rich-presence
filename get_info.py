@@ -1,6 +1,6 @@
 import asyncio
 from discordrp import Presence
-import time
+import json
 
 
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager as MediaManager
@@ -43,5 +43,5 @@ async def _get_media_info():
 
 
 if __name__ == '__main__':
-    print(get_media_info())
+    print(json.dumps(get_media_info(), indent=4, sort_keys=True, default=str))
     
