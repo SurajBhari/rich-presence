@@ -1,4 +1,3 @@
-import asyncio
 from discordrp import Presence
 import time
 from get_info import get_media_info
@@ -13,7 +12,7 @@ def is_playing(media_info):
         return False
     return int(media_info['playback_status']) == 4
 
-if __name__ == '__main__':
+def get_presence():
     while True:
         try:
             presence = Presence(client_id)
@@ -22,8 +21,10 @@ if __name__ == '__main__':
             continue
         else:
             print(f"Connected to Discord")
-            break
-        
+            return presence
+
+if __name__ == '__main__':
+    presence = get_presence()
     while True:
         time.sleep(2)
         current_media_info=get_media_info()
@@ -36,8 +37,7 @@ if __name__ == '__main__':
         if last_track == current_media_info['title']:
             continue
         end_time = current_media_info["end_time"] - current_media_info['position']
-        presence.set(
-            {
+        presence_data = {
                 "state": current_media_info['artist'],
                 "details": current_media_info['title'],
                 "timestamps": {
@@ -48,6 +48,10 @@ if __name__ == '__main__':
                     "large_image": icon_name
                 }
             }
-        )
+        try:
+            presence.set(presence_data)
+        except OSError:
+            print("Discord have stopped responding")
+            presence = get_presence()
         print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
         last_track = current_media_info['title']
