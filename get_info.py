@@ -7,8 +7,10 @@ from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessi
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionPlaybackInfo  as PlaybackInfo
 
 
+def get_media_info():
+    return asyncio.run(get_media_info())
 
-async def get_media_info():
+async def _get_media_info():
     sessions = await MediaManager.request_async()
     session = sessions.get_current_session()
     if not session:
@@ -41,5 +43,5 @@ async def get_media_info():
 
 
 if __name__ == '__main__':
-    print(asyncio.run(get_media_info()))
+    print(get_media_info())
     
