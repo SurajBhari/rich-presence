@@ -27,14 +27,15 @@ if __name__ == '__main__':
     while True:
         time.sleep(2)
         current_media_info=get_media_info()
-        if not any([current_media_info, is_playing(current_media_info)]):
-            print("No media playing")
-            presence.clear()
-            last_track = None
+        if not current_media_info or not is_playing(current_media_info):
+            if last_track: # we should not spam the clear function if there was no song previously played
+                print("No media playing, Cleaning up Presence.")
+                presence.clear()
+                last_track = None
             continue
         if last_track == current_media_info['title']:
             continue
-        end_time = current_media_info["end_time"] - current_media_info['start_time']
+        end_time = current_media_info["end_time"] - current_media_info['position']
         presence.set(
             {
                 "state": current_media_info['artist'],
