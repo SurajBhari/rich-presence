@@ -8,7 +8,7 @@ from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessi
 
 
 def get_media_info():
-    return asyncio.run(get_media_info())
+    return asyncio.run(_get_media_info())
 
 async def _get_media_info():
     sessions = await MediaManager.request_async()
