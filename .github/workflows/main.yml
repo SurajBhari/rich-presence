@@ -2,8 +2,6 @@ name: Package Application with Pyinstaller
 
 on:
   push:
-    branches:
-      - main  # Replace with your branch name
 
 jobs:
   build:
@@ -11,37 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - uses: actions/setup-python@v2
       with:
         python-version: 3.10
 
-    - name: Install dependencies and build
-      run: |
-        pip install -r ./src/requirements.txt
-        pip install pyinstaller
-        pyinstaller ./src/main.py --onefile
-
-    - name: Create a release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.sha }}
-        release_name: ${{ github.sha }}
-        body: |
-          Describe your release in a few lines.
-        draft: false
-        prerelease: false
-
-    - name: Upload a Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/main.exe
-        asset_name: main.exe
-        asset_content_type: application/octet-stream
+    - run: pip install -r ./src/requirements.txt pyinstaller
+    - run: pyinstaller ./src/main.py --onefile
