@@ -9,6 +9,8 @@ icon_name = "musical-note"
 last_track = None
 
 def is_playing(media_info):
+    if not media_info:
+        return False
     return int(media_info['playback_status']) == 4
 
 if __name__ == '__main__':
@@ -38,11 +40,13 @@ if __name__ == '__main__':
                 "state": current_media_info['artist'],
                 "details": current_media_info['title'],
                 "timestamps": {
-                    "end": end_time.seconds, 
+                    "start": int(time.time()),
+                    "end": int(time.time()) + end_time.seconds, 
                 },
                 "assets": {
                     "large_image": icon_name
                 }
             }
         )
+        print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
         last_track = current_media_info['title']
