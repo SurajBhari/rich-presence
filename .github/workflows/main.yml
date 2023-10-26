@@ -23,20 +23,20 @@ jobs:
         pip install -r ./src/requirements.txt
         pip install pyinstaller
 
-    - name: Build executable
-      run: pyinstaller ./src/main.py --onefile --noconsole
+    - name: Build executable (no console)
+      run: pyinstaller ./src/main.py --onefile -n "Discord Rich Presence" -i favicon.ico --noconsole
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: main-executable-no-console
-        path: ./dist/main.exe
+        path: './dist/Discord Rich Presence.exe'
 
     - name: Build executable
-      run: pyinstaller ./src/main.py --onefile 
+      run: pyinstaller ./src/main.py --onefile -n "Discord Rich Presence" -i favicon.ico
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: main-executable-console
-        path: ./dist/main.exe
+        path: './dist/Discord Rich Presence.exe'
