@@ -24,10 +24,19 @@ jobs:
         pip install pyinstaller
 
     - name: Build executable
-      run: pyinstaller ./src/main.py --onefile
+      run: pyinstaller ./src/main.py --onefile --noconsole
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: main-executable
+        name: main-executable-no-console
+        path: ./dist/main.exe
+
+    - name: Build executable
+      run: pyinstaller ./src/main.py --onefile 
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: main-executable-console
         path: ./dist/main.exe
