@@ -4,7 +4,6 @@ from get_info import get_media_info
 
 
 client_id = "1163238681088364584"  # Replace this with your own client id
-icon_name = "musical-note"
 last_track = None
 
 def is_playing(media_info):
@@ -45,9 +44,16 @@ if __name__ == '__main__':
                     "end": int(time.time()) + end_time.seconds, 
                 },
                 "assets": {
-                    "large_image": icon_name
+                    "large_image": current_media_info['thumbnail'],
                 }
             }
+        if current_media_info["link"]:
+            presence_data["buttons"] = [
+                {
+                    "label": "Listen on YouTube",
+                    "url": current_media_info["link"]
+                }
+            ]
         try:
             presence.set(presence_data)
         except OSError:

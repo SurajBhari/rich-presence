@@ -1,9 +1,14 @@
 import asyncio
 import json
+from ytmusicapi import YTMusic
 
 
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager as MediaManager
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionPlaybackInfo  as PlaybackInfo
+
+
+
+yt = YTMusic()
 
 
 def get_media_info():
@@ -35,6 +40,15 @@ async def _get_media_info():
                 "position": timeline.position,
                 "start_time": timeline.start_time
             }
+            search = yt.search(f'{info.title} {info.artist}', filter="songs", limit=1)
+            if info.title not in search[0]['title']:
+                thumbnail = "musical-note"
+                link = ""
+            else:
+                thumbnail = search[0]['thumbnails'][-1]['url']
+                link = f"https://music.youtube.com/watch?v={search[0]['videoId']}"
+            info_dict['thumbnail'] = thumbnail
+            info_dict['link'] = link
             # converts winrt vector to list
             info_dict['genres'] = list(info_dict['genres'])
             return info_dict
