@@ -30,7 +30,12 @@ if __name__ == '__main__':
         if not current_media_info or not is_playing(current_media_info) or not current_media_info['artist']:
             if last_track: # we should not spam the clear function if there was no song previously played
                 print("No media playing, Cleaning up Presence.")
-                presence.clear()
+                try:
+                    presence.clear()
+                except OSError:
+                    print("Discord have stopped responding")
+                    presence = get_presence()
+                    continue
                 last_track = None
             continue
         if last_track == current_media_info['title']:
