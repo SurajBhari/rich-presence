@@ -44,7 +44,7 @@ async def _get_media_info():
             if info.title in search[0]['title']:
                 thumbnail = search[0]['thumbnails'][-1]['url']
                 link = f"https://music.youtube.com/watch?v={search[0]['videoId']}"
-            info_dict['thumbnail'] = thumbnail
+        info_dict['thumbnail'] = thumbnail
         info_dict['link'] = link
         # converts winrt vector to list
         info_dict['genres'] = list(info_dict['genres'])
