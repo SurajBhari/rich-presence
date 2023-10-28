@@ -37,7 +37,10 @@ async def _get_media_info():
             "position": timeline.position,
             "start_time": timeline.start_time
         }
-        search = yt.search(f'{info.title} {info.artist}', filter="songs", limit=1)
+        try:
+            search = yt.search(f'{info.title} {info.artist}', filter="songs", limit=1)
+        except Exception as e:
+            search = None
         thumbnail = ""
         link = ""
         if search:
