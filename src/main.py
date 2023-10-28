@@ -49,7 +49,7 @@ if __name__ == '__main__':
                     "end": int(time.time()) + end_time.seconds, 
                 },
                 "assets": {
-                    "large_image": current_media_info['thumbnail'],
+                    "large_image": current_media_info['thumbnail'] or "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif",
                 }
             }
         if current_media_info["link"]:

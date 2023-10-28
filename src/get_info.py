@@ -38,7 +38,7 @@ async def _get_media_info():
             "start_time": timeline.start_time
         }
         search = yt.search(f'{info.title} {info.artist}', filter="songs", limit=1)
-        thumbnail = "musical-note"
+        thumbnail = ""
         link = ""
         if search:
             if info.title in search[0]['title']:
