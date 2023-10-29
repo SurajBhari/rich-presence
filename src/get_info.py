@@ -1,14 +1,23 @@
 import asyncio
 import json
 from ytmusicapi import YTMusic
-
+import requests
+from time import sleep
 
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager as MediaManager
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionPlaybackInfo  as PlaybackInfo
 
-
-
-yt = YTMusic()
+print("Connecting to YouTube Music...")
+while True:
+    try:
+        yt = YTMusic()
+    except requests.exceptions.ConnectionError: # wait for internet connection
+        print("No internet connection, retrying in 5 seconds...")
+        sleep(5)
+        continue
+    else:
+        break
+print("Connected to YouTube Music")
 
 
 def get_media_info():
