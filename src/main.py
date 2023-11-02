@@ -1,4 +1,4 @@
-from discordrp import Presence
+from discordrp import Presence, PresenceError
 import time
 from get_info import get_media_info
 
@@ -15,7 +15,7 @@ def get_presence():
     while True:
         try:
             presence = Presence(client_id)
-        except FileNotFoundError:
+        except (FileNotFoundError, PresenceError):
             time.sleep(5)
             continue
         else:
