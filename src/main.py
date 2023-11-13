@@ -41,18 +41,22 @@ if __name__ == '__main__':
         if last_track == current_media_info['title']:
             continue
         end_time = current_media_info["end_time"] - current_media_info['position']
+        start = int(time.time())
+        end = int(time.time()) + end_time.seconds
         presence_data = {
-                "state": current_media_info['artist'],
-                "details": current_media_info['title'],
-                "timestamps": {
-                    "start": int(time.time()),
-                    "end": int(time.time()) + end_time.seconds, 
-                },
-                "assets": {
-                    "large_image": current_media_info['thumbnail'] or "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif",
-                }
+            "state": current_media_info['artist'],
+            "details": current_media_info['title'],
+            "timestamps": {
+                "start": start,
+                "end": end, 
+            },
+            "assets": {
+                "large_image": current_media_info['thumbnail'] or "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif",
             }
-        if current_media_info["link"]:
+        }
+        if end-start > 3590:
+            del presence_data["timestamps"]
+        if current_media_info["link"]: 
             presence_data["buttons"] = [
                 {
                     "label": "Listen on YouTube",
