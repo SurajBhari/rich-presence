@@ -1,10 +1,12 @@
 from discordrp import Presence, PresenceError
 import time
 from get_info import get_media_info
-
+import os 
 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
+download_songs = True # automatically download songs from youtube music
+music_folder = os.environ.get("userprofile") + "/Music"
 
 def is_playing(media_info):
     if not media_info:
@@ -21,6 +23,20 @@ def get_presence():
         else:
             print(f"Connected to Discord")
             return presence
+
+import os
+import yt_dlp
+
+def download_song(url, output_folder="."):
+    # Set options for yt-dlp
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': os.path.join(output_folder, '%(artist)s %(title)s.%(ext)s'),
+        'quiet': 'true',
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
 
 if __name__ == '__main__':
     presence = get_presence()
@@ -70,3 +86,19 @@ if __name__ == '__main__':
             presence = get_presence()
         print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
         last_track = current_media_info['title']
+        # download the song 
+        drp = f"{music_folder}/drp"
+        if "drp" not in os.listdir(music_folder):
+            os.makedirs(music_folder+"/drp")
+        if f"{current_media_info['artist']} {current_media_info['title']}.mp3" in os.listdir(drp):
+            continue
+        if not download_songs:
+            continue
+        if not current_media_info['link']:
+            continue
+        try:
+            download_song(current_media_info['link'], drp)
+        except Exception as e:
+            print(e)
+            continue
+        

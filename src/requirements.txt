@@ -1,3 +1,4 @@
 winsdk
 discord-rich-presence
 ytmusicapi
+yt-dlp
