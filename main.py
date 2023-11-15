@@ -75,8 +75,8 @@ while True:
             "large_image": current_media_info['thumbnail'] or "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif",
         }
     }
-    if end-start > 3590:
-        del presence_data["timestamps"] # for livestreams windows tell that there is 1 hour left. but it is not true
+    if not current_media_info['id']:
+        del presence_data["timestamps"] # if there is no id. then its not a song. then we should not show the timestamps
     if current_media_info["link"]: 
         presence_data["buttons"] = [
             {
@@ -94,12 +94,16 @@ while True:
     drp = f"{music_folder}/drp"
     if "drp" not in os.listdir(music_folder):
         os.makedirs(music_folder+"/drp")
+
+    if not current_media_info['id']:
+        continue
+
     if "drp.json" not in os.listdir(music_folder+"/drp"):
         with open(music_folder+"/drp/drp.json", "w+") as f:
             json.dump({}, f)
     with open(music_folder+"/drp/drp.json", "r") as f:
         data = json.load(f)
-    
+        
     if current_media_info['id'] in data.keys():
         if current_media_info['position'].seconds < 5:
             # it means that the current song is just started and not resumed.
@@ -121,8 +125,6 @@ while True:
     if f"{current_media_info['artist']} {current_media_info['title']}.mp3" in os.listdir(drp):
         continue
     if not download_songs:
-        continue
-    if not current_media_info['link']:
         continue
     try:
         download_song(current_media_info['link'], drp)
