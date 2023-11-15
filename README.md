@@ -32,6 +32,14 @@ Use the following commands to build the application:
   pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole
   ```
 
+## Songs not detecting
+
+If you are already listening to a song and open discord mid way. it will not change your presence until next song (can be also pausing and resuming the same song)
+
+Alternatively
+
+There is a weird bug with YTMusic. Some songs just doesn't come when searched for like [Challa from Jab Tak hai Jaan](https://music.youtube.com/watch?v=hhssZ5bDa8E) will not come up when [searched for](https://music.youtube.com/search?q=challa+rabbi). so my program would not be able to determine the thumbnail or link to that song.
+
 ## Virus Prompt
 
 If you encounter a "Threats Found" prompt while using the no-console version, it's due to changes in Windows policy. Unfortunately, obtaining the necessary certificate for background execution is cost-prohibitive. To resolve this:
