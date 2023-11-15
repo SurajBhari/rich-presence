@@ -13,8 +13,8 @@ Download from the latest workfrom from ->
 Change the `client_id` in `main.py` to your own client id to get your own application name and icon.
 
 # Build Instructions
-`pyinstaller ./src/main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi` - Builds with console </br>
-`pyinstaller ./src/main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole` - Builds with no console 
+`pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi` - Builds with console </br>
+`pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole` - Builds with no console 
 
 # Virus prompt
 If you are trying to use the no console version then you must have gotten a prompt saying `Threats Found` </br>
