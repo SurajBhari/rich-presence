@@ -8,6 +8,7 @@ import yt_dlp
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
 download_songs = True # automatically download songs from youtube music
+use_discord = True # use discord rich presence if not then just logs your songs and downlaods them
 music_folder = os.environ.get("userprofile") + "/Music"
 
 def is_playing(media_info):
@@ -16,6 +17,8 @@ def is_playing(media_info):
     return int(media_info['playback_status']) == 4
 
 def get_presence():
+    if not use_discord:
+        return None
     try:
         presence = Presence(client_id)
     except (FileNotFoundError, PresenceError):
