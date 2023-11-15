@@ -52,14 +52,18 @@ async def _get_media_info():
             search = None
         thumbnail = ""
         link = ""
+        id = ""
+        artists = []
         if search:
             if info.title in search[0]['title']:
                 thumbnail = search[0]['thumbnails'][-1]['url']
                 link = f"https://music.youtube.com/watch?v={search[0]['videoId']}"
+                id = search[0]['videoId']
+                artists = search[0]['artists']
         info_dict['thumbnail'] = thumbnail
         info_dict['link'] = link
-        # converts winrt vector to list
-        info_dict['genres'] = list(info_dict['genres'])
+        info_dict['id'] = id
+        info_dict['artists'] = artists
         return info_dict
     raise Exception('TARGET_PROGRAM is not the current media session')
 

@@ -2,6 +2,8 @@ from discordrp import Presence, PresenceError
 import time
 from get_info import get_media_info
 import os 
+import json
+import yt_dlp
 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
@@ -24,8 +26,6 @@ def get_presence():
             print(f"Connected to Discord")
             return presence
 
-import os
-import yt_dlp
 
 def download_song(url, output_folder="."):
     # Set options for yt-dlp
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         start = int(time.time())
         end = int(time.time()) + end_time.seconds
         presence_data = {
-            "state": current_media_info['artist'],
+            "state": current_media_info['artist'], # Note: This is the artist that is taken from windows. `artists` have more than one artist taken from yt
             "details": current_media_info['title'],
             "timestamps": {
                 "start": start,
@@ -90,6 +90,27 @@ if __name__ == '__main__':
         drp = f"{music_folder}/drp"
         if "drp" not in os.listdir(music_folder):
             os.makedirs(music_folder+"/drp")
+        if "drp.json" not in os.listdir(music_folder+"/drp"):
+            with open(music_folder+"/drp/drp.json", "w+") as f:
+                json.dump({}, f)
+        with open(music_folder+"/drp/drp.json", "r") as f:
+            data = json.load(f)
+        
+        if current_media_info['id'] in data.keys():
+            data[current_media_info['id']]['count'] += 1 
+            data[current_media_info['id']]['time'].append(time.time())
+        else:
+            data[current_media_info['id']] = {
+                "count": 1,
+                "title": current_media_info['title'],
+                "artist": current_media_info['artist'],
+                "link": current_media_info['link'],
+                "thumbnail": current_media_info['thumbnail'],
+                "time": [time.time()]
+            }
+        # I tried to get the genre info too. but its not directly given
+        with open(music_folder+"/drp/drp.json", "w") as f:
+            json.dump(data, f, indent=4)
         if f"{current_media_info['artist']} {current_media_info['title']}.mp3" in os.listdir(drp):
             continue
         if not download_songs:
