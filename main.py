@@ -16,15 +16,13 @@ def is_playing(media_info):
     return int(media_info['playback_status']) == 4
 
 def get_presence():
-    while True:
-        try:
-            presence = Presence(client_id)
-        except (FileNotFoundError, PresenceError):
-            time.sleep(5)
-            continue
-        else:
-            print(f"Connected to Discord")
-            return presence
+    try:
+        presence = Presence(client_id)
+    except (FileNotFoundError, PresenceError):
+        return None
+    else:
+        print(f"Connected to Discord")
+        return presence
 
 
 def download_song(url, output_folder="."):
@@ -42,21 +40,23 @@ if __name__ != '__main__':
     exit(-1) # this file should not be imported
 
 
-
 presence = get_presence()
 
 while True:
     time.sleep(2)
+    if not presence:
+        presence = get_presence()
     current_media_info=get_media_info()
     if not current_media_info or not is_playing(current_media_info) or not current_media_info['artist']:
         if last_track: # we should not spam the clear function if there was no song previously played
             print("No media playing, Cleaning up Presence.")
-            try:
-                presence.clear()
-            except OSError:
-                print("Discord have stopped responding")
-                presence = get_presence()
-                continue
+            if presence:
+                try:
+                    presence.clear()
+                except OSError:
+                    print("Discord have stopped responding")
+                    presence = get_presence()
+                    continue
             last_track = None
         continue
     if last_track == current_media_info['title']:
@@ -84,12 +84,14 @@ while True:
                 "url": current_media_info["link"]
             }
         ]
-    try:
-        presence.set(presence_data)
-    except OSError:
-        print("Discord have stopped responding")
-        presence = get_presence()
-    print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
+    if presence:
+        try:
+            presence.set(presence_data)
+        except OSError:
+            print("Discord have stopped responding")
+        print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
+    else:
+        print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
     last_track = current_media_info['title']
     drp = f"{music_folder}/drp"
     if "drp" not in os.listdir(music_folder):
@@ -113,6 +115,7 @@ while True:
         data[current_media_info['id']] = {
             "count": 1,
             "title": current_media_info['title'],
+            "artists": current_media_info['artists'],
             "artist": current_media_info['artist'],
             "link": current_media_info['link'],
             "thumbnail": current_media_info['thumbnail'],
