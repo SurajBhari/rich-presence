@@ -20,11 +20,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r ./src/requirements.txt
+        pip install -r requirements.txt
         pip install pyinstaller
 
     - name: Build executable (no console)
-      run: pyinstaller ./src/main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole 
+      run: pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole 
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
@@ -33,7 +33,7 @@ jobs:
         path: './dist/Discord Rich Presence.exe'
 
     - name: Build executable
-      run: pyinstaller ./src/main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi
+      run: pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
