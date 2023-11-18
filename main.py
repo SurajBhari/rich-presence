@@ -117,9 +117,10 @@ while True:
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
-    if not current_media_info['id'] and strict_mode:
-        print("Strict mode is enabled. Skipping non song media")
-        current_media_info = None
+    if current_media_info:
+        if not current_media_info['id'] and strict_mode:
+            print("Strict mode is enabled. Skipping non song media")
+            current_media_info = None
     if not current_media_info or not is_playing(current_media_info) or not current_media_info['artist']:
         if last_track: # we should not spam the clear function if there was no song previously played
             print("No media playing, Cleaning up Presence.")
