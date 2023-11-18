@@ -137,7 +137,10 @@ while True:
                         presence = get_presence()
                         continue
                 last_track = None
-
+    else:
+        continue
+    if not is_playing(current_media_info):
+        continue
     if last_track == current_media_info['title']:
         continue
     if show_notification:
