@@ -117,22 +117,27 @@ while True:
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
+    # Check if there is current media information
     if current_media_info:
+        # Skip non-song media if strict mode is enabled and there is no 'id'
         if not current_media_info['id'] and strict_mode:
-            print("Strict mode is enabled. Skipping non song media")
+            print("Strict mode is enabled. Skipping non-song media.")
             current_media_info = None
-    if not current_media_info or not is_playing(current_media_info) or not current_media_info['artist']:
-        if last_track: # we should not spam the clear function if there was no song previously played
-            print("No media playing, Cleaning up Presence.")
-            if presence:
-                try:
-                    presence.clear()
-                except OSError:
-                    print("Discord have stopped responding")
-                    presence = get_presence()
-                    continue
-            last_track = None
-        continue
+
+        # Check if there is no current media information, or if it's not playing, or if there is no artist information
+        if not is_playing(current_media_info) or not current_media_info['artist']:
+            # Cleanup and clear presence if there was a last track
+            if last_track:
+                print("No media playing. Cleaning up presence.")
+                if presence:
+                    try:
+                        presence.clear()
+                    except OSError:
+                        print("Discord has stopped responding. Reconnecting...")
+                        presence = get_presence()
+                        continue
+                last_track = None
+
     if last_track == current_media_info['title']:
         continue
     if show_notification:
