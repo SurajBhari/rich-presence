@@ -59,8 +59,10 @@ def download_song(url, output_folder="."):
 if __name__ != '__main__':
     exit(-1) # this file should not be imported
 
-image = PIL.Image.open("./favicon.ico")
-
+try:
+    image = PIL.Image.open("favicon.ico")
+except FileNotFoundError: # fix this later
+    image = None
 
 def after_click(icon, query):
     global strict_mode, use_discord, download_songs, enabled
