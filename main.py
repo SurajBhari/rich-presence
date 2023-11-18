@@ -59,7 +59,7 @@ def download_song(url, output_folder="."):
 if __name__ != '__main__':
     exit(-1) # this file should not be imported
 
-image = PIL.Image.open("favicon.ico")
+image = PIL.Image.open("./favicon.ico")
 
 
 def after_click(icon, query):
