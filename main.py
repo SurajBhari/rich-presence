@@ -10,10 +10,14 @@ import PIL.Image
 enabled = True # if false the program is disabled and will not do anything 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
+music_folder = os.environ.get("userprofile") + "/Music"
+
+
+# settings 
 download_songs = True # automatically download songs from youtube music
 use_discord = True # use discord rich presence if not then just logs your songs and downlaods them
-music_folder = os.environ.get("userprofile") + "/Music"
-strict_mode = True # if true it will only show the media that are detected as songs. if false it will show all media that are playing
+strict_mode = False # if true it will only show the media that are detected as songs. if false it will show all media that are playing
+show_notification = True # if true it will show a notification when song changes
 
 def is_playing(media_info):
     if not media_info:
@@ -21,6 +25,7 @@ def is_playing(media_info):
     return int(media_info['playback_status']) == 4
 
 def get_presence():
+    print(f"get_presence called with use_discord={use_discord}")
     if not use_discord:
         return None
     try:
@@ -31,7 +36,15 @@ def get_presence():
         print(f"Connected to Discord")
         return presence
 
-
+def _get_presence():
+    # this override the use_discord variable
+    try:
+        presence = Presence(client_id)
+    except (FileNotFoundError, PresenceError):
+        return None
+    else:
+        print(f"Connected to Discord")
+        return presence
 def download_song(url, output_folder="."):
     # Set options for yt-dlp
     ydl_opts = {
@@ -50,30 +63,34 @@ image = PIL.Image.open("favicon.ico")
 
 
 def after_click(icon, query):
-    global strict_mode, use_discord, download_songs
+    global strict_mode, use_discord, download_songs, enabled
     if query.text == "Strict Mode":
         strict_mode = not strict_mode
-        query.checked = strict_mode
+        print(f"Strict mode is now {strict_mode}")
     elif query.text == "Enable Presence":
         use_discord = not use_discord
-        query.checked = use_discord
+        print(f"Discord presence is now {use_discord}")
     elif query.text == "Download Songs":
         download_songs = not download_songs
-        query.checked = download_songs
+        print(f"Download songs is now {download_songs}")
     elif query.text == "Exit":
         icon.stop()
     elif query.text == "Enable":
         enabled = not enabled
-        query.checked = enabled
+        print(f"Enabled is now {enabled}")
+    elif query.text == "Show Notifications":
+        show_notification = not show_notification
+        print(f"Show Notifications is now {show_notification}")
     else:
         print(query.text)
         
 
 menu = pystray.Menu(
-    pystray.MenuItem("Enable", after_click, default=enabled),
-    pystray.MenuItem("Strict Mode", after_click, default=strict_mode),
-    pystray.MenuItem("Enable Presence", after_click, default=use_discord),
-    pystray.MenuItem("Download Songs", after_click, default=download_songs),
+    pystray.MenuItem("Enable", after_click, checked=lambda item: enabled),
+    pystray.MenuItem("Strict Mode", after_click, checked=lambda item: strict_mode),
+    pystray.MenuItem("Enable Presence", after_click, checked=lambda item: use_discord),
+    pystray.MenuItem("Download Songs", after_click, checked=lambda item: download_songs),
+    pystray.MenuItem("Show Notifications", after_click, checked=lambda item: show_notification),
     pystray.MenuItem("Exit", after_click)
     )
 
@@ -83,11 +100,9 @@ icon = pystray.Icon(
     "Discord Rich Presence", 
     menu=menu)
 
-print(dir(icon))
-#icon.run()
-
 
 presence = get_presence()
+icon.run_detached()
 
 while True:
     if not enabled:
@@ -113,6 +128,8 @@ while True:
         continue
     if last_track == current_media_info['title']:
         continue
+    if show_notification:
+        icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
     end_time = current_media_info["end_time"] - current_media_info['position']
     start = int(time.time())
     end = int(time.time()) + end_time.seconds
@@ -136,7 +153,7 @@ while True:
                 "url": current_media_info["link"]
             }
         ]
-    if presence:
+    if presence and use_discord:
         if strict_mode and not current_media_info['id']:
             print(f"Strict mode is enabled. Skipping {current_media_info['artist']} - {current_media_info['title']}")
             continue
