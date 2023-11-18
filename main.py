@@ -25,7 +25,6 @@ def is_playing(media_info):
     return int(media_info['playback_status']) == 4
 
 def get_presence():
-    print(f"get_presence called with use_discord={use_discord}")
     if not use_discord:
         return None
     try:
@@ -60,9 +59,13 @@ if __name__ != '__main__':
     exit(-1) # this file should not be imported
 
 try:
-    image = PIL.Image.open("favicon.ico")
+    image = PIL.Image.open("favidcon.ico")
 except FileNotFoundError: # fix this later
-    image = None
+    import requests
+    try:
+        image = PIL.Image.open(requests.get("http://surajbhari.info:666/static/favicon.ico", stream=True).raw)
+    except Exception as e:
+        image = PIL.Image.open(requests.get("https://www.youtube.com/favicon.ico", stream=True).raw)
 
 def after_click(icon, query):
     global strict_mode, use_discord, download_songs, enabled
@@ -77,6 +80,7 @@ def after_click(icon, query):
         print(f"Download songs is now {download_songs}")
     elif query.text == "Exit":
         icon.stop()
+        os._exit(0)
     elif query.text == "Enable":
         enabled = not enabled
         print(f"Enabled is now {enabled}")
