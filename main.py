@@ -4,12 +4,16 @@ from get_info import get_media_info
 import os 
 import json
 import yt_dlp
+import pystray
+import PIL.Image
 
+enabled = True # if false the program is disabled and will not do anything 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
 download_songs = True # automatically download songs from youtube music
 use_discord = True # use discord rich presence if not then just logs your songs and downlaods them
 music_folder = os.environ.get("userprofile") + "/Music"
+strict_mode = True # if true it will only show the media that are detected as songs. if false it will show all media that are playing
 
 def is_playing(media_info):
     if not media_info:
@@ -42,14 +46,59 @@ def download_song(url, output_folder="."):
 if __name__ != '__main__':
     exit(-1) # this file should not be imported
 
+image = PIL.Image.open("favicon.ico")
+
+
+def after_click(icon, query):
+    global strict_mode, use_discord, download_songs
+    if query.text == "Strict Mode":
+        strict_mode = not strict_mode
+        query.checked = strict_mode
+    elif query.text == "Enable Presence":
+        use_discord = not use_discord
+        query.checked = use_discord
+    elif query.text == "Download Songs":
+        download_songs = not download_songs
+        query.checked = download_songs
+    elif query.text == "Exit":
+        icon.stop()
+    elif query.text == "Enable":
+        enabled = not enabled
+        query.checked = enabled
+    else:
+        print(query.text)
+        
+
+menu = pystray.Menu(
+    pystray.MenuItem("Enable", after_click, default=enabled),
+    pystray.MenuItem("Strict Mode", after_click, default=strict_mode),
+    pystray.MenuItem("Enable Presence", after_click, default=use_discord),
+    pystray.MenuItem("Download Songs", after_click, default=download_songs),
+    pystray.MenuItem("Exit", after_click)
+    )
+
+icon = pystray.Icon(
+    "DRP", 
+    image, 
+    "Discord Rich Presence", 
+    menu=menu)
+
+print(dir(icon))
+#icon.run()
+
 
 presence = get_presence()
 
 while True:
+    if not enabled:
+        continue
     time.sleep(2)
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
+    if not current_media_info['id'] and strict_mode:
+        print("Strict mode is enabled. Skipping non song media")
+        current_media_info = None
     if not current_media_info or not is_playing(current_media_info) or not current_media_info['artist']:
         if last_track: # we should not spam the clear function if there was no song previously played
             print("No media playing, Cleaning up Presence.")
@@ -88,6 +137,9 @@ while True:
             }
         ]
     if presence:
+        if strict_mode and not current_media_info['id']:
+            print(f"Strict mode is enabled. Skipping {current_media_info['artist']} - {current_media_info['title']}")
+            continue
         try:
             presence.set(presence_data)
         except OSError:
