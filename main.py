@@ -68,7 +68,7 @@ except FileNotFoundError: # fix this later
         image = PIL.Image.open(requests.get("https://www.youtube.com/favicon.ico", stream=True).raw)
 
 def after_click(icon, query):
-    global strict_mode, use_discord, download_songs, enabled
+    global strict_mode, use_discord, download_songs, enabled, show_notification
     if query.text == "Strict Mode":
         strict_mode = not strict_mode
         print(f"Strict mode is now {strict_mode}")
