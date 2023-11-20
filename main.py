@@ -148,6 +148,8 @@ while True:
     end_time = current_media_info["end_time"] - current_media_info['position']
     start = int(time.time())
     end = int(time.time()) + end_time.seconds
+    if not current_media_info['artist']:
+        current_media_info['artist'] = "Unknown Artist"
     presence_data = {
         "state": current_media_info['artist'], # Note: This is the artist that is taken from windows. `artists` have more than one artist taken from yt
         "details": current_media_info['title'],
