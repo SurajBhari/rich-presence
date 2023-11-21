@@ -7,17 +7,42 @@ import yt_dlp
 import pystray
 import PIL.Image
 
-enabled = True # if false the program is disabled and will not do anything 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
 music_folder = os.environ.get("userprofile") + "/Music"
 
 
-# settings 
+# settings
+enabled = True # if false the program is disabled and will not do anything  
 download_songs = True # automatically download songs from youtube music
 use_discord = True # use discord rich presence if not then just logs your songs and downlaods them
 strict_mode = False # if true it will only show the media that are detected as songs. if false it will show all media that are playing
 show_notification = True # if true it will show a notification when song changes
+
+
+template_settings = {
+    "enabled": enabled,
+    "download_songs": download_songs,
+    "use_discord": use_discord,
+    "strict_mode": strict_mode,
+    "show_notification": show_notification
+}
+
+if "drp" not in os.listdir(music_folder):
+    os.makedirs(music_folder+"/drp")
+    json.dump(template_settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+else:
+    if "settings.json" not in os.listdir(music_folder+"/drp"):
+        json.dump(template_settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+    else:
+        with open(music_folder+"/drp/settings.json", "r") as f:
+            settings = json.load(f)
+        enabled = settings["enabled"]
+        download_songs = settings["download_songs"]
+        use_discord = settings["use_discord"]
+        strict_mode = settings["strict_mode"]
+        show_notification = settings["show_notification"]
+
 
 def is_playing(media_info):
     if not media_info:
@@ -68,25 +93,40 @@ except FileNotFoundError: # fix this later
         image = PIL.Image.open(requests.get("https://www.youtube.com/favicon.ico", stream=True).raw)
 
 def after_click(icon, query):
-    global strict_mode, use_discord, download_songs, enabled, show_notification
+    global strict_mode, use_discord, download_songs, enabled, show_notification, settings, music_folder
     if query.text == "Strict Mode":
         strict_mode = not strict_mode
         print(f"Strict mode is now {strict_mode}")
+        settings['strict_mode'] = strict_mode
+        json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+
     elif query.text == "Enable Presence":
         use_discord = not use_discord
         print(f"Discord presence is now {use_discord}")
+        settings['use_discord'] = use_discord
+        json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+
     elif query.text == "Download Songs":
         download_songs = not download_songs
         print(f"Download songs is now {download_songs}")
+        settings['download_songs'] = download_songs
+        json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+
     elif query.text == "Exit":
         icon.stop()
         os._exit(0)
     elif query.text == "Enable":
         enabled = not enabled
         print(f"Enabled is now {enabled}")
+        settings['enabled'] = enabled
+        json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+
     elif query.text == "Show Notifications":
         show_notification = not show_notification
         print(f"Show Notifications is now {show_notification}")
+        settings['show_notification'] = show_notification
+        json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
+
     else:
         print(query.text)
         
@@ -183,11 +223,13 @@ while True:
         print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
     last_track = current_media_info['title']
     drp = f"{music_folder}/drp"
+    if not current_media_info['id']:
+        continue
+
     if "drp" not in os.listdir(music_folder):
         os.makedirs(music_folder+"/drp")
 
-    if not current_media_info['id']:
-        continue
+    
 
     if "drp.json" not in os.listdir(music_folder+"/drp"):
         with open(music_folder+"/drp/drp.json", "w+") as f:
