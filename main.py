@@ -6,13 +6,15 @@ import json
 import yt_dlp
 import pystray
 import PIL.Image
+from typing import Optional, Union
 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
 music_folder = os.environ.get("userprofile") + "/Music"
+default_icon = "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif" 
 
 
-# settings
+# settings | These are default settings. changing these will not change anything. the program remembers the settings in a json file
 enabled = True # if false the program is disabled and will not do anything  
 download_songs = True # automatically download songs from youtube music
 use_discord = True # use discord rich presence if not then just logs your songs and downlaods them
@@ -30,26 +32,35 @@ template_settings = {
 
 if "drp" not in os.listdir(music_folder):
     os.makedirs(music_folder+"/drp")
+
+if "settings.json" not in os.listdir(music_folder+"/drp"):
     json.dump(template_settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
-else:
-    if "settings.json" not in os.listdir(music_folder+"/drp"):
-        json.dump(template_settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
-    else:
-        with open(music_folder+"/drp/settings.json", "r") as f:
-            settings = json.load(f)
-        enabled = settings["enabled"]
-        download_songs = settings["download_songs"]
-        use_discord = settings["use_discord"]
-        strict_mode = settings["strict_mode"]
-        show_notification = settings["show_notification"]
+    print("Settings file not found. Creating one with default settings")
 
+try:
+    with open(music_folder+"/drp/settings.json", "r") as f:
+        settings = json.load(f)
+except:
+    settings = template_settings
+    
+enabled = settings["enabled"]
+download_songs = settings["download_songs"]
+use_discord = settings["use_discord"]
+strict_mode = settings["strict_mode"]
+show_notification = settings["show_notification"]
 
-def is_playing(media_info):
+if "drp.json" not in os.listdir(music_folder+"/drp"):
+    with open(music_folder+"/drp/drp.json", "w+") as f:
+        json.dump({}, f)
+with open(music_folder+"/drp/drp.json", "r") as f:
+    data = json.load(f)
+
+def is_playing(media_info) -> bool:
     if not media_info:
         return False
     return int(media_info['playback_status']) == 4
 
-def get_presence():
+def get_presence() -> Optional[Presence]:
     if not use_discord:
         return None
     try:
@@ -60,16 +71,7 @@ def get_presence():
         print(f"Connected to Discord")
         return presence
 
-def _get_presence():
-    # this override the use_discord variable
-    try:
-        presence = Presence(client_id)
-    except (FileNotFoundError, PresenceError):
-        return None
-    else:
-        print(f"Connected to Discord")
-        return presence
-def download_song(url, output_folder="."):
+def download_song(url, output_folder=".") -> None:
     # Set options for yt-dlp
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -92,7 +94,7 @@ except FileNotFoundError: # fix this later
     except Exception as e:
         image = PIL.Image.open(requests.get("https://www.youtube.com/favicon.ico", stream=True).raw)
 
-def after_click(icon, query):
+def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
     global strict_mode, use_discord, download_songs, enabled, show_notification, settings, music_folder
     if query.text == "Strict Mode":
         strict_mode = not strict_mode
@@ -120,7 +122,6 @@ def after_click(icon, query):
         print(f"Enabled is now {enabled}")
         settings['enabled'] = enabled
         json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
-
     elif query.text == "Show Notifications":
         show_notification = not show_notification
         print(f"Show Notifications is now {show_notification}")
@@ -198,12 +199,14 @@ while True:
             "end": end, 
         },
         "assets": {
-            "large_image": current_media_info['thumbnail'] or "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif",
+            "large_image": current_media_info['thumbnail'] or default_icon,
         }
     }
     if not current_media_info['id']:
-        del presence_data["timestamps"] # if there is no id. then its not a song. then we should not show the timestamps
-    if current_media_info["link"]: 
+        presence_data["timestamps"] = {
+            "start": int(time.time())
+        } # if its a non song media then we don't know when it will end. so we just show much time has passed instead
+    else: 
         presence_data["buttons"] = [
             {
                 "label": "Listen on YouTube",
@@ -223,19 +226,12 @@ while True:
         print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
     last_track = current_media_info['title']
     drp = f"{music_folder}/drp"
+
+
     if not current_media_info['id']:
         continue
-
-    if "drp" not in os.listdir(music_folder):
-        os.makedirs(music_folder+"/drp")
-
     
-
-    if "drp.json" not in os.listdir(music_folder+"/drp"):
-        with open(music_folder+"/drp/drp.json", "w+") as f:
-            json.dump({}, f)
-    with open(music_folder+"/drp/drp.json", "r") as f:
-        data = json.load(f)
+    # The following code consists of downloading the song and storing a record of playback. its not of use if its a non song media
         
     if current_media_info['id'] in data.keys():
         if current_media_info['position'].seconds < 5:
@@ -256,7 +252,9 @@ while True:
     with open(music_folder+"/drp/drp.json", "w") as f:
         json.dump(data, f, indent=4)
     # download the song 
-    if f"{current_media_info['artist']} {current_media_info['title']}.mp3" in os.listdir(drp):
+    if f"{current_media_info['artist']} {current_media_info['title']}.webm" in os.listdir(drp):
+        # Already downloaded
+        print("Song Already downloaded")
         continue
     if not download_songs:
         continue

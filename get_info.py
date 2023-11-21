@@ -28,44 +28,42 @@ async def _get_media_info():
     session = sessions.get_current_session()
     if not session:
         return None
-    if session:  # there needs to be a media session running
-        pinfo = session.get_playback_info()
-        info = await session.try_get_media_properties_async()
-        timeline = session.get_timeline_properties()
-        # song_attr[0] != '_' ignores system attributes
-        info_dict = {
-            "artist": info.artist,
-            "title": info.title,
-            "genres": info.genres,
-            "playback_status": pinfo.playback_status,
-            "duration": pinfo.playback_type,
-            "end_time": timeline.end_time,
-            "last_updated": timeline.last_updated_time,
-            "max_seek": timeline.max_seek_time,
-            "min_seek": timeline.min_seek_time,
-            "position": timeline.position,
-            "start_time": timeline.start_time
-        }
-        try:
-            search = yt.search(f'{info.title} {info.artist}', filter="songs", limit=1)
-        except Exception as e:
-            search = None
-        thumbnail = ""
-        link = ""
-        id = ""
-        artists = []
-        if search:
-            if info.title in search[0]['title']:
-                thumbnail = search[0]['thumbnails'][-1]['url']
-                link = f"https://music.youtube.com/watch?v={search[0]['videoId']}"
-                id = search[0]['videoId']
-                artists = search[0]['artists']
-        info_dict['thumbnail'] = thumbnail
-        info_dict['link'] = link
-        info_dict['id'] = id
-        info_dict['artists'] = artists
-        return info_dict
-    raise Exception('TARGET_PROGRAM is not the current media session')
+    pinfo = session.get_playback_info()
+    info = await session.try_get_media_properties_async()
+    timeline = session.get_timeline_properties()
+    # song_attr[0] != '_' ignores system attributes
+    info_dict = {
+        "artist": info.artist,
+        "title": info.title,
+        "genres": info.genres,
+        "playback_status": pinfo.playback_status,
+        "duration": pinfo.playback_type,
+        "end_time": timeline.end_time,
+        "last_updated": timeline.last_updated_time,
+        "max_seek": timeline.max_seek_time,
+        "min_seek": timeline.min_seek_time,
+        "position": timeline.position,
+        "start_time": timeline.start_time
+    }
+    try:
+        search = yt.search(f'{info.title} {info.artist}', filter="songs", limit=1)
+    except Exception as e:
+        search = None
+    thumbnail = ""
+    link = ""
+    id = ""
+    artists = []
+    if search:
+        if info.title in search[0]['title']:
+            thumbnail = search[0]['thumbnails'][-1]['url']
+            link = f"https://music.youtube.com/watch?v={search[0]['videoId']}"
+            id = search[0]['videoId']
+            artists = search[0]['artists']
+    info_dict['thumbnail'] = thumbnail
+    info_dict['link'] = link
+    info_dict['id'] = id
+    info_dict['artists'] = artists
+    return info_dict
 
 
 if __name__ == '__main__':
