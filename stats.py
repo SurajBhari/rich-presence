@@ -78,5 +78,5 @@ def show_stats():
     os.system("start temp.html")
 
     
-
-show_stats()
+if __name__ == "__main__":
+    show_stats()
