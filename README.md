@@ -24,12 +24,12 @@ Use the following commands to build the application:
 
 - **Build with Console:**
   ```
-  pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --add-data "favicon.ico;."
+  pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --add-data "favicon.ico;." --add-data "templates;templates"
   ```
 
 - **Build without Console:**
   ```
-  pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole --add-data "favicon.ico;."
+  pyinstaller main.py --onefile -n "Discord Rich Presence" -i favicon.ico --collect-data ytmusicapi --noconsole --add-data "favicon.ico;." --add-data "templates;templates"
   ```
 
 ## Songs not detecting
