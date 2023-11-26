@@ -7,6 +7,7 @@ import yt_dlp
 import pystray
 import PIL.Image
 from typing import Optional, Union
+from stats import show_stats
 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
@@ -127,7 +128,8 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
         print(f"Show Notifications is now {show_notification}")
         settings['show_notification'] = show_notification
         json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
-
+    elif query.text == "Show Stats":
+        show_stats()
     else:
         print(query.text)
         
@@ -138,6 +140,7 @@ menu = pystray.Menu(
     pystray.MenuItem("Enable Presence", after_click, checked=lambda item: use_discord),
     pystray.MenuItem("Download Songs", after_click, checked=lambda item: download_songs),
     pystray.MenuItem("Show Notifications", after_click, checked=lambda item: show_notification),
+    pystray.MenuItem("Show Stats", after_click),
     pystray.MenuItem("Exit", after_click)
     )
 

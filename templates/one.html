@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <center>
+    <h1>Top Songs</h1>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Count</th>
+        </tr>
+        {% for data in top_songs %}
+        <tr>
+            <td>{{data['title']}}</td>
+            <td>{{data['artist']}}</td>
+            <td>{{data['count']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table>
+    <h1 id="top_artists">Top Artists</h1>
+        <tr>
+            <th>Artist</th>
+            <th>Count</th>
+        </tr>
+        {% for x in top_artists %}
+        <tr>
+            <td>{{x[0]}}</td>
+            <td>{{x[1]}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <img src="{{trend_graph}}" alt="trend">
+</body>
+</html>
