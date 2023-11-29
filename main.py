@@ -1,6 +1,6 @@
 from discordrp import Presence, PresenceError
 import time
-from get_info import get_media_info
+from get_info import get_media_info, populate_yt
 import os 
 import json
 import yt_dlp
@@ -161,6 +161,10 @@ while True:
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
+    if last_track == current_media_info['title']:
+        continue
+    current_media_info = populate_yt(current_media_info)
+    
     # Check if there is current media information
     if current_media_info:
         # Skip non-song media if strict mode is enabled and there is no 'id'
@@ -185,8 +189,7 @@ while True:
         continue
     if not is_playing(current_media_info):
         continue
-    if last_track == current_media_info['title']:
-        continue
+    
     if show_notification:
         icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
     end_time = current_media_info["end_time"] - current_media_info['position']
