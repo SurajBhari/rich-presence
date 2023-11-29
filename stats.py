@@ -7,8 +7,6 @@ from flask import render_template, render_template_string, app, Flask
 
 drp = os.environ.get("userprofile") + "/Music/drp/drp.json"
 
-with open(drp, "r") as f:
-    data = json.load(f)
 
 """
 {
@@ -31,23 +29,25 @@ with open(drp, "r") as f:
     }
 }
 """
-artists_dict = {}
-times = []
-for song in data.values():
-    for time in song["time"]:
-        times.append(time)
-    artists = song.get("artists")
-    if not artists:
-        continue
-    for artist in artists:
-        if artist["name"] in artists_dict:
-            artists_dict[artist["name"]] += 1
-        else:
-            artists_dict[artist["name"]] = 1
+
 
 
 def show_stats():
-    global data, artists_dict, times
+    with open(drp, "r") as f:
+        data = json.load(f)
+    artists_dict = {}
+    times = []
+    for song in data.values():
+        for time in song["time"]:
+            times.append(time)
+        artists = song.get("artists")
+        if not artists:
+            continue
+        for artist in artists:
+            if artist["name"] in artists_dict:
+                artists_dict[artist["name"]] += 1
+            else:
+                artists_dict[artist["name"]] = 1
     top_10_songs = sorted(data.values(), key=lambda x: x["count"], reverse=True)[:10]
     top_10_artists = sorted(artists_dict.items(), key=lambda x: x[1], reverse=True)[:10]
     # plot the time graph
@@ -73,7 +73,7 @@ def show_stats():
                                 top_artists=top_10_artists, 
                                 trend_graph="time.png"
                                 ) 
-    with open("temp.html", "w+") as f:
+    with open("temp.html", "w") as f:
         f.write(html)
     os.system("start temp.html")
 
