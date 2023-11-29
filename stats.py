@@ -73,7 +73,7 @@ def show_stats():
                                 top_artists=top_10_artists, 
                                 trend_graph="time.png"
                                 ) 
-    with open("temp.html", "w") as f:
+    with open("temp.html", "w+") as f:
         f.write(html)
     os.system("start temp.html")
 

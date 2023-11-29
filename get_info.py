@@ -35,9 +35,9 @@ async def _get_media_info():
     info_dict = {
         "artist": info.artist,
         "title": info.title,
-        "genres": info.genres,
+        "genres": [x for x in info.genres],
         "playback_status": pinfo.playback_status,
-        "duration": pinfo.playback_type,
+        "playback_type": pinfo.playback_type,
         "end_time": timeline.end_time,
         "last_updated": timeline.last_updated_time,
         "max_seek": timeline.max_seek_time,
@@ -67,5 +67,5 @@ async def _get_media_info():
 
 
 if __name__ == '__main__':
-    print(json.dumps(get_media_info(), indent=4, sort_keys=True, default=str))
+    print(json.dumps(get_media_info(), indent=4, default=str))
     

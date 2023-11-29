@@ -190,29 +190,23 @@ while True:
     if show_notification:
         icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
     end_time = current_media_info["end_time"] - current_media_info['position']
-    start = int(time.time())
-    end = int(time.time()) + end_time.seconds
+    start = int(time.time()) 
     if not current_media_info['artist']:
         current_media_info['artist'] = "Unknown Artist"
     presence_data = {
         "state": current_media_info['artist'], # Note: This is the artist that is taken from windows. `artists` have more than one artist taken from yt
         "details": current_media_info['title'],
         "timestamps": {
-            "start": start,
-            "end": end, 
+            "start": start, # I have tried to calculate the time but was unsuccesful as windows doesn't directly tell the current seek time.
         },
         "assets": {
             "large_image": current_media_info['thumbnail'] or default_icon,
         }
     }
-    if not current_media_info['id']:
-        presence_data["timestamps"] = {
-            "start": int(time.time())
-        } # if its a non song media then we don't know when it will end. so we just show much time has passed instead
-    else: 
+    if current_media_info['link']:
         presence_data["buttons"] = [
             {
-                "label": "Listen on YouTube",
+                "label": "Listen on YouTube Music",
                 "url": current_media_info["link"]
             }
         ]
