@@ -4,5 +4,4 @@ ytmusicapi
 yt-dlp
 pystray
 pillow
-matplotlib
 flask
