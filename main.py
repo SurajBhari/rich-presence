@@ -130,6 +130,9 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
         json.dump(settings, open(music_folder+"/drp/settings.json", "w+"), indent=4)
     elif query.text == "Show Stats":
         show_stats()
+    elif query.text == "Show current notification":
+        if last_track:
+            icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
     else:
         print(query.text)
         
@@ -141,6 +144,7 @@ menu = pystray.Menu(
     pystray.MenuItem("Download Songs", after_click, checked=lambda item: download_songs),
     pystray.MenuItem("Show Notifications", after_click, checked=lambda item: show_notification),
     pystray.MenuItem("Show Stats", after_click),
+    pystray.MenuItem("Show current notification", after_click, default=True, visible=False), # This is default action. invokes when left clicked on icon
     pystray.MenuItem("Exit", after_click)
     )
 
