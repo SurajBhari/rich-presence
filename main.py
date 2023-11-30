@@ -223,8 +223,9 @@ while True:
             continue
         try:
             presence.set(presence_data)
-        except OSError:
+        except Exception as e:
             print("Discord have stopped responding")
+            presence = None
         print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
     else:
         print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
