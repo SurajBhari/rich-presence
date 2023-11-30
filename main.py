@@ -167,7 +167,7 @@ while True:
     current_media_info=get_media_info()
     if not current_media_info:
         continue
-    if last_track == current_media_info: # nothing changed. why care ?
+    if last_track['title'] == current_media_info['title']: # nothing changed. why care ?
         continue
     current_media_info = populate_yt(current_media_info)
     
