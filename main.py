@@ -132,7 +132,7 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
         show_stats()
     elif query.text == "Show current notification":
         if last_track:
-            icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
+            icon.notify(f"{last_track['artist']} - {last_track['title']}", "Discord Rich Presence")
     else:
         print(query.text)
         
@@ -167,7 +167,7 @@ while True:
     current_media_info=get_media_info()
     if not current_media_info:
         continue
-    if last_track == current_media_info['title']:
+    if last_track == current_media_info: # nothing changed. why care ?
         continue
     current_media_info = populate_yt(current_media_info)
     
@@ -228,7 +228,7 @@ while True:
         print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
     else:
         print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
-    last_track = current_media_info['title']
+    last_track = current_media_info
     drp = f"{music_folder}/drp"
 
 
