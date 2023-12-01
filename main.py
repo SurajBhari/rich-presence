@@ -175,12 +175,13 @@ def update(media_info):
             "start": start, # I have tried to calculate the time but was unsuccesful as windows doesn't directly tell the current seek time.
         },
         "assets": {
-            "large_image": media_info['thumbnail'] or default_icon,
-            "small_image": play_image if is_playing(media_info) else pause_image,
+            "large_image": media_info['thumbnail'] or default_icon
         }
     }
     if not is_playing(media_info):
         del presence_data["timestamps"] # don't show how long we have been paused.
+        presence_data["assets"]["small_image"] = pause_image
+        presence_data["assets"]["small_text"] = "Paused"
     if media_info['link']:
         presence_data["buttons"] = [
             {
@@ -195,7 +196,7 @@ def update(media_info):
         try:
             presence.set(presence_data)
         except Exception as e:
-            print("Discord have stopped responding")
+            print(f"Discord have stopped responding {e}")
         print(f"Changed presence info to {media_info['artist']} - {media_info['title']}")
     else:
         print(f"Discord not connected. Doing other stuff regardless. {media_info['artist']} - {media_info['title']}")
@@ -246,7 +247,6 @@ while True:
     if last_track == current_media_info['title'] and last_state == current_media_info['playback_status']:
         continue #No change in media. paused is still paused. playing is still playing
     current_media_info = populate_yt(current_media_info)
-    
     # Check if there is current media information
     if current_media_info:
         # Skip non-song media if strict mode is enabled and there is no 'id'
