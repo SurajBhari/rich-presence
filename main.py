@@ -244,18 +244,15 @@ while True:
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
+    if not current_media_info:
+        continue # how can i always forget this
     if last_track == current_media_info['title'] and last_state == current_media_info['playback_status']:
         continue #No change in media. paused is still paused. playing is still playing
     current_media_info = populate_yt(current_media_info)
-    # Check if there is current media information
-    if current_media_info:
-        # Skip non-song media if strict mode is enabled and there is no 'id'
-        if not current_media_info['id'] and strict_mode:
-            print("Strict mode is enabled. Skipping non-song media.")
-            current_media_info = None
-    
-    if not current_media_info:
-        continue
+    # Skip non-song media if strict mode is enabled and there is no 'id'
+    if not current_media_info['id'] and strict_mode:
+        print("Strict mode is enabled. Skipping non-song media.")
+        current_media_info = None
     
     if show_notification:
         icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
