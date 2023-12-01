@@ -11,8 +11,11 @@ from stats import show_stats
 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
+last_state = None
 music_folder = os.environ.get("userprofile") + "/Music"
 default_icon = "https://media.tenor.com/15YUsMWt4FEAAAAi/music.gif" 
+play_image = "" # we don't need to prevent obstruction to thumbnail. but you can add one if you wish to.
+pause_image = 'https://cdn.iconscout.com/icon/free/png-512/free-pause-circle-round-resume-play-player-30539.png?f=webp&w=256'
 
 
 # settings | These are default settings. changing these will not change anything. the program remembers the settings in a json file
@@ -158,6 +161,80 @@ icon = pystray.Icon(
 presence = get_presence()
 icon.run_detached()
 
+def update(media_info):
+    end_time = media_info["end_time"] - media_info['position']
+    start = int(time.time()) 
+    if not media_info['artist']:
+        media_info['artist'] = "Unknown Artist"
+    if not media_info['title']:
+        media_info['title'] = "Unknown Title"
+    presence_data = {
+        "state": media_info['artist'], # Note: This is the artist that is taken from windows. `artists` have more than one artist taken from yt
+        "details": media_info['title'],
+        "timestamps": {
+            "start": start, # I have tried to calculate the time but was unsuccesful as windows doesn't directly tell the current seek time.
+        },
+        "assets": {
+            "large_image": media_info['thumbnail'] or default_icon,
+            "small_image": play_image if is_playing(media_info) else pause_image,
+        }
+    }
+    if not is_playing(media_info):
+        del presence_data["timestamps"] # don't show how long we have been paused.
+    if media_info['link']:
+        presence_data["buttons"] = [
+            {
+                "label": "Listen on YouTube Music",
+                "url": media_info["link"]
+            }
+        ]
+    if presence and use_discord:
+        if strict_mode and not media_info['id']:
+            print(f"Strict mode is enabled. Skipping {media_info['artist']} - {media_info['title']}")
+            return
+        try:
+            presence.set(presence_data)
+        except Exception as e:
+            print("Discord have stopped responding")
+        print(f"Changed presence info to {media_info['artist']} - {media_info['title']}")
+    else:
+        print(f"Discord not connected. Doing other stuff regardless. {media_info['artist']} - {media_info['title']}")
+
+def record_playback(media_info):
+        
+    if media_info['id'] in data.keys():
+        if media_info['position'].seconds < 5:
+            # it means that the current song is just started and not resumed.
+            data[media_info['id']]['count'] += 1 
+            data[media_info['id']]['time'].append(time.time())
+    else:
+        data[media_info['id']] = {
+            "count": 1,
+            "title": media_info['title'],
+            "artists": media_info['artists'],
+            "artist": media_info['artist'],
+            "link": media_info['link'],
+            "thumbnail": media_info['thumbnail'],
+            "time": [time.time()]
+        }
+    # I tried to get the genre info too. but its not directly given
+    with open(music_folder+"/drp/drp.json", "w") as f:
+        json.dump(data, f, indent=4)
+    # download the song 
+
+def downlooad(media_info, drp):
+    if f"{media_info['artist']} {media_info['title']}.webm" in os.listdir(drp):
+        # Already downloaded
+        print("Song Already downloaded")
+        return
+    if not download_songs:
+        return
+    try:
+        download_song(media_info['link'], drp)
+    except Exception as e:
+        print(e)
+        return
+
 while True:
     if not enabled:
         continue
@@ -166,18 +243,8 @@ while True:
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
-    if not is_playing(current_media_info):
-        if presence:
-            try:
-                presence.clear()
-            except Exception as e:
-                print("Discord has stopped responding. Reconnecting...")
-                presence = get_presence()
-            last_track = None
-            print("Cleared presence info")
-        continue
-    if last_track == current_media_info['title']:
-        continue
+    if last_track == current_media_info['title'] and last_state == current_media_info['playback_status']:
+        continue #No change in media. paused is still paused. playing is still playing
     current_media_info = populate_yt(current_media_info)
     
     # Check if there is current media information
@@ -192,77 +259,16 @@ while True:
     
     if show_notification:
         icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
-    end_time = current_media_info["end_time"] - current_media_info['position']
-    start = int(time.time()) 
-    if not current_media_info['artist']:
-        current_media_info['artist'] = "Unknown Artist"
-    if not current_media_info['title']:
-        current_media_info['title'] = "Unknown Title"
-    presence_data = {
-        "state": current_media_info['artist'], # Note: This is the artist that is taken from windows. `artists` have more than one artist taken from yt
-        "details": current_media_info['title'],
-        "timestamps": {
-            "start": start, # I have tried to calculate the time but was unsuccesful as windows doesn't directly tell the current seek time.
-        },
-        "assets": {
-            "large_image": current_media_info['thumbnail'] or default_icon,
-        }
-    }
-    if current_media_info['link']:
-        presence_data["buttons"] = [
-            {
-                "label": "Listen on YouTube Music",
-                "url": current_media_info["link"]
-            }
-        ]
-    if presence and use_discord:
-        if strict_mode and not current_media_info['id']:
-            print(f"Strict mode is enabled. Skipping {current_media_info['artist']} - {current_media_info['title']}")
-            continue
-        try:
-            presence.set(presence_data)
-        except Exception as e:
-            print("Discord have stopped responding")
-        print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
-    else:
-        print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
-    last_track = current_media_info['title']
-    drp = f"{music_folder}/drp"
 
+    update(current_media_info)
+    last_track = current_media_info['title']
+    last_state = current_media_info['playback_status']
+    drp = f"{music_folder}/drp"
 
     if not current_media_info['id']:
         continue
-    
-    # The following code consists of downloading the song and storing a record of playback. its not of use if its a non song media
+    record_playback(current_media_info)
+    downlooad(current_media_info, drp)
         
-    if current_media_info['id'] in data.keys():
-        if current_media_info['position'].seconds < 5:
-            # it means that the current song is just started and not resumed.
-            data[current_media_info['id']]['count'] += 1 
-            data[current_media_info['id']]['time'].append(time.time())
-    else:
-        data[current_media_info['id']] = {
-            "count": 1,
-            "title": current_media_info['title'],
-            "artists": current_media_info['artists'],
-            "artist": current_media_info['artist'],
-            "link": current_media_info['link'],
-            "thumbnail": current_media_info['thumbnail'],
-            "time": [time.time()]
-        }
-    # I tried to get the genre info too. but its not directly given
-    with open(music_folder+"/drp/drp.json", "w") as f:
-        json.dump(data, f, indent=4)
-    # download the song 
-    if f"{current_media_info['artist']} {current_media_info['title']}.webm" in os.listdir(drp):
-        # Already downloaded
-        print("Song Already downloaded")
-        continue
-    if not download_songs:
-        continue
-    try:
-        download_song(current_media_info['link'], drp)
-    except Exception as e:
-        print(e)
-        continue
+    
         
