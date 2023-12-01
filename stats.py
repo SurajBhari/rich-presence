@@ -47,7 +47,7 @@ def show_stats():
                                 times = x,
                                 counts = y
                                 ) 
-    with open("temp.html", "w") as f:
+    with open("temp.html", "w+") as f:
         f.write(html)
     os.system("start temp.html")
 
