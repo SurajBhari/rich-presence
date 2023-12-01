@@ -132,7 +132,7 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
         show_stats()
     elif query.text == "Show current notification":
         if last_track:
-            icon.notify(f"{last_track['artist']} - {last_track['title']}", "Discord Rich Presence")
+            icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
     else:
         print(query.text)
         
@@ -144,7 +144,7 @@ menu = pystray.Menu(
     pystray.MenuItem("Download Songs", after_click, checked=lambda item: download_songs),
     pystray.MenuItem("Show Notifications", after_click, checked=lambda item: show_notification),
     pystray.MenuItem("Show Stats", after_click),
-    pystray.MenuItem("Show current notification", after_click, default=True, visible=False), # This is default action. invokes when left clicked on icon
+    pystray.MenuItem("Show current notification", after_click, default=True, visible=False),
     pystray.MenuItem("Exit", after_click)
     )
 
@@ -162,36 +162,32 @@ while True:
     if not enabled:
         continue
     time.sleep(2)
+    print('HEARTBEAT')
     if not presence:
         presence = get_presence()
     current_media_info=get_media_info()
-    if not current_media_info:
+    if not is_playing(current_media_info):
+        if presence:
+            try:
+                presence.clear()
+            except Exception as e:
+                print("Discord has stopped responding. Reconnecting...")
+                presence = get_presence()
+            last_track = None
+            print("Cleared presence info")
         continue
-    if last_track:
-        if last_track['title'] == current_media_info['title']: # nothing changed. why care ?
-            continue
-    
+    if last_track == current_media_info['title']:
+        continue
     current_media_info = populate_yt(current_media_info)
     
-    # Skip non-song media if strict mode is enabled and there is no 'id'
-    if not current_media_info['id'] and strict_mode:
-        print("Strict mode is enabled. Skipping non-song media.")
-        current_media_info = None
-        continue
-
-    # Check if there is no current media information, or if it's not playing, or if there is no artist information
-    if not is_playing(current_media_info):
-        # Cleanup and clear presence if there was a last track
-        if last_track:
-            print("No media playing. Cleaning up presence.")
-            if presence:
-                try:
-                    presence.clear()
-                except OSError:
-                    print("Discord has stopped responding. Reconnecting...")
-                    presence = get_presence()
-                    continue
-            last_track = None            
+    # Check if there is current media information
+    if current_media_info:
+        # Skip non-song media if strict mode is enabled and there is no 'id'
+        if not current_media_info['id'] and strict_mode:
+            print("Strict mode is enabled. Skipping non-song media.")
+            current_media_info = None
+    
+    if not current_media_info:
         continue
     
     if show_notification:
@@ -227,11 +223,10 @@ while True:
             presence.set(presence_data)
         except Exception as e:
             print("Discord have stopped responding")
-            presence = None
         print(f"Changed presence info to {current_media_info['artist']} - {current_media_info['title']}")
     else:
         print(f"Discord not connected. Doing other stuff regardless. {current_media_info['artist']} - {current_media_info['title']}")
-    last_track = current_media_info
+    last_track = current_media_info['title']
     drp = f"{music_folder}/drp"
 
 
