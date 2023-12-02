@@ -47,20 +47,9 @@
             {% endfor %}
         </div>
     </div>
-    <h1>Top Artists</h1>
-    <div class="container">
-        <div class="row">
-            {% for data in top_artists %}
-            <div class="col-md-4 col-lg-3">
-                <div class="card" style="width: 100%;">
-                    <div class="card-body">
-                        <h6 class="card-text"> {{ data[0] }} </h6>
-                        <p class="card-text">{{ data[1] }} Times</p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+    <div class="col-md-8">
+        <h1>Artists Piechart</h1>
+        <canvas id="pieChart" width="400" height="400"></canvas>
     </div>
     <div class="col-md-8">
         <h1>Song Listening Graph</h1>
@@ -95,6 +84,34 @@
         // set chart size to 800 x 800
         myChart.canvas.parentNode.style.height = '800px';
         myChart.canvas.parentNode.style.width = '800px';
+
+        var ctx = document.getElementById('pieChart').getContext('2d');
+        var artists = {{piechart_artists|tojson}};
+        
+        var pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: artists.map(subarray => subarray[1])
+                }],
+                labels: artists.map(subarray => subarray[0])
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: true,
+                    text: 'Chart.js Pie Chart'
+                  }
+                }
+            },
+        });
+        // set chart size to 800 x 800
+        pieChart.canvas.parentNode.style.height = '800px';
+        pieChart.canvas.parentNode.style.width = '800px';
 
 
     </script>

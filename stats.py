@@ -24,8 +24,8 @@ def show_stats():
                 artists_dict[artist["name"]] += 1
             else:
                 artists_dict[artist["name"]] = 1
-    top_10_songs = sorted(data.values(), key=lambda x: x["count"], reverse=True)[:8]
-    top_10_artists = sorted(artists_dict.items(), key=lambda x: x[1], reverse=True)[:8]
+    top_songs = sorted(data.values(), key=lambda x: x["count"], reverse=True)
+    top_artists = sorted(artists_dict.items(), key=lambda x: x[1], reverse=True)
     # plot the time graph
     # day by day
     times = sorted(times)
@@ -40,12 +40,16 @@ def show_stats():
     x = list(dic.keys())
     y = list(dic.values())
     app = Flask(__name__)
+    # for piechart consider the first 8 artists. and others in others
+    piechart_artists = top_artists[:40]
+    piechart_artists.append(("others", sum([x[1] for x in top_artists[40:]])))
+
     with app.app_context():
         html =  render_template("one.html", 
-                                top_songs=top_10_songs, 
-                                top_artists=top_10_artists, 
+                                top_songs=top_songs[:8], 
                                 times = x,
-                                counts = y
+                                counts = y,
+                                piechart_artists=piechart_artists
                                 ) 
     with open("temp.html", "w+") as f:
         f.write(html)
