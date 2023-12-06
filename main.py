@@ -8,6 +8,8 @@ import pystray
 import PIL.Image
 from typing import Optional, Union
 from stats import show_stats
+from win11toast import toast, notify
+import sys
 
 client_id = "1163238681088364584"  # Replace this with your own client id
 last_track = None
@@ -24,7 +26,6 @@ download_songs = True # automatically download songs from youtube music
 use_discord = True # use discord rich presence if not then just logs your songs and downlaods them
 strict_mode = False # if true it will only show the media that are detected as songs. if false it will show all media that are playing
 show_notification = True # if true it will show a notification when song changes
-
 
 template_settings = {
     "enabled": enabled,
@@ -85,6 +86,25 @@ def download_song(url, output_folder=".") -> None:
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
 
+def send_notification(title, image_link, small_content=None):
+    if sys.getwindowsversion().build >= 22000:
+        # windows 11 
+        icon = {
+            'src': image_link,
+            'placement': 'appLogoOverride'
+        }
+        notify(
+            title,
+            small_content,
+            icon=icon, 
+            app_id='Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic',
+            audio={'silent': 'true'},
+            duration='short'
+        )
+    else:
+        icon.notify(small_content, title)
+
+
 
 if __name__ != '__main__':
     exit(-1) # this file should not be imported
@@ -135,7 +155,10 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
         show_stats()
     elif query.text == "Show current notification":
         if last_track:
-            icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
+            send_notification(
+                f"{current_media_info['artist']} - {current_media_info['title']}", 
+                current_media_info['thumbnail']
+            )
     else:
         print(query.text)
         
@@ -255,7 +278,10 @@ while True:
         current_media_info = None
     
     if show_notification:
-        icon.notify(f"{current_media_info['artist']} - {current_media_info['title']}", "Discord Rich Presence")
+        send_notification(
+                f"{current_media_info['artist']} - {current_media_info['title']}", 
+                current_media_info['thumbnail']
+            )
 
     update(current_media_info)
     last_track = current_media_info['title']
