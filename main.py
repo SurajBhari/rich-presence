@@ -87,11 +87,12 @@ def download_song(url, output_folder=".") -> None:
         ydl.download([url])
 
 def send_notification(title, image_link, small_content=None):
+    image_link = image_link.split('=w120')[0]
     if sys.getwindowsversion().build >= 22000:
         # windows 11 
         icon = {
             'src': image_link,
-            'placement': 'appLogoOverride'
+            'placement': 'hero'
         }
         notify(
             title,
