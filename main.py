@@ -277,7 +277,7 @@ while True:
     if not current_media_info['id'] and strict_mode:
         print("Strict mode is enabled. Skipping non-song media.")
         current_media_info = None
-    
+        continue
     if show_notification:
         send_notification(
                 f"{current_media_info['artist']} - {current_media_info['title']}", 
