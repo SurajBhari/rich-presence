@@ -155,11 +155,13 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
     elif query.text == "Show Stats":
         show_stats()
     elif query.text == "Show current notification":
+        string = "No Media playing" 
+        thumbnail = ""
         if last_track:
-            send_notification(
-                f"{current_media_info['artist']} - {current_media_info['title']}", 
-                current_media_info['thumbnail']
-            )
+            string = f"{current_media_info['artist']} - {current_media_info['title']}"
+            thumbnail = current_media_info['thumbnail']
+                
+        send_notification(string, thumbnail)
     else:
         print(query.text)
         
