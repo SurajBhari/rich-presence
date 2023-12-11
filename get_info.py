@@ -4,14 +4,18 @@ from ytmusicapi import YTMusic
 import requests
 from time import sleep
 
-from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager as MediaManager
-from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionPlaybackInfo  as PlaybackInfo
+from winsdk.windows.media.control import (
+    GlobalSystemMediaTransportControlsSessionManager as MediaManager,
+)
+from winsdk.windows.media.control import (
+    GlobalSystemMediaTransportControlsSessionPlaybackInfo as PlaybackInfo,
+)
 
 print("Connecting to YouTube Music...")
 while True:
     try:
         yt = YTMusic()
-    except requests.exceptions.ConnectionError: # wait for internet connection
+    except requests.exceptions.ConnectionError:  # wait for internet connection
         print("No internet connection, retrying in 5 seconds...")
         sleep(5)
         continue
@@ -22,6 +26,7 @@ print("Connected to YouTube Music")
 
 def get_media_info():
     return asyncio.run(_get_media_info())
+
 
 async def _get_media_info():
     sessions = await MediaManager.request_async()
@@ -43,14 +48,18 @@ async def _get_media_info():
         "max_seek": timeline.max_seek_time,
         "min_seek": timeline.min_seek_time,
         "position": timeline.position,
-        "start_time": timeline.start_time
+        "start_time": timeline.start_time,
     }
     return info_dict
-    
 
-def populate_yt(info_dict): # populate info_dict with yt info  so that we don't spam the yt api. and only call it when we need to
+
+def populate_yt(
+    info_dict,
+):  # populate info_dict with yt info  so that we don't spam the yt api. and only call it when we need to
     try:
-        search = yt.search(f'{info_dict["title"]} {info_dict["artist"]}', filter="songs", limit=1)
+        search = yt.search(
+            f'{info_dict["title"]} {info_dict["artist"]}', filter="songs", limit=1
+        )
     except Exception as e:
         search = None
     thumbnail = ""
@@ -58,18 +67,17 @@ def populate_yt(info_dict): # populate info_dict with yt info  so that we don't 
     id = ""
     artists = []
     if search:
-        if info_dict["title"] in search[0]['title']:
-            thumbnail = search[0]['thumbnails'][-1]['url']
+        if info_dict["title"] in search[0]["title"]:
+            thumbnail = search[0]["thumbnails"][-1]["url"]
             link = f"https://music.youtube.com/watch?v={search[0]['videoId']}"
-            id = search[0]['videoId']
-            artists = search[0]['artists']
-    info_dict['thumbnail'] = thumbnail
-    info_dict['link'] = link
-    info_dict['id'] = id
-    info_dict['artists'] = artists
+            id = search[0]["videoId"]
+            artists = search[0]["artists"]
+    info_dict["thumbnail"] = thumbnail
+    info_dict["link"] = link
+    info_dict["id"] = id
+    info_dict["artists"] = artists
     return info_dict
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(json.dumps(get_media_info(), indent=4, default=str))
-    

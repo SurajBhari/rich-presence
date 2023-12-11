@@ -1,16 +1,17 @@
 import json
-import os 
+import os
 from datetime import datetime
 from flask import render_template, render_template_string, app, Flask
 
 drp = os.environ.get("userprofile") + "/Music/drp/drp.json"
 
+
 def show_stats():
     with open(drp, "r") as f:
         data = json.load(f)
     for d in data:
-        #"thumbnail": "https://lh3.googleusercontent.com/z8lL4eRXzWiYCve_kYLpAmFLNJjaEXziCaKmz3rhXijAJi38eybuDa-pVff6VWAXOC8rgUNgeIddHBE4=w120-h120-l90-rj",
-        data[d]['thumbnail'] = data[d]['thumbnail'].split('=w120')[0]
+        # "thumbnail": "https://lh3.googleusercontent.com/z8lL4eRXzWiYCve_kYLpAmFLNJjaEXziCaKmz3rhXijAJi38eybuDa-pVff6VWAXOC8rgUNgeIddHBE4=w120-h120-l90-rj",
+        data[d]["thumbnail"] = data[d]["thumbnail"].split("=w120")[0]
     artists_dict = {}
     times = []
     for song in data.values():
@@ -45,16 +46,17 @@ def show_stats():
     piechart_artists.append(("others", sum([x[1] for x in top_artists[40:]])))
 
     with app.app_context():
-        html =  render_template("one.html", 
-                                top_songs=top_songs[:8], 
-                                times = x,
-                                counts = y,
-                                piechart_artists=piechart_artists
-                                ) 
+        html = render_template(
+            "one.html",
+            top_songs=top_songs[:8],
+            times=x,
+            counts=y,
+            piechart_artists=piechart_artists,
+        )
     with open("temp.html", "w+") as f:
         f.write(html)
     os.system("start temp.html")
 
-    
+
 if __name__ == "__main__":
     show_stats()
