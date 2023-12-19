@@ -1,7 +1,7 @@
 winsdk
-discord - rich - presence
+discord-rich-presence
 ytmusicapi
-yt - dlp
+yt-dlp
 pystray
 pillow
 flask
