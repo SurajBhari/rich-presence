@@ -169,7 +169,7 @@ def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
         thumbnail = ""
         if last_track:
             string = f"{current_media_info['artist']} - {current_media_info['title']}"
-            thumbnail = current_media_info["thumbnail"]
+            thumbnail = current_media_info.get("thumbnail", default_icon)
 
         send_notification(string, thumbnail)
     else:
@@ -263,6 +263,7 @@ def record_playback(media_info):
     # I tried to get the genre info too. but its not directly given
     with open(music_folder + "/drp/drp.json", "w") as f:
         json.dump(data, f, indent=4)
+    print(f"Recorded {media_info['artist']} - {media_info['title']}")
     # download the song
 
 
@@ -278,7 +279,7 @@ def downlooad(media_info, drp):
     except Exception as e:
         print(e)
         return
-
+    print(f"Downloaded {media_info['artist']} - {media_info['title']}")
 
 while True:
     if not enabled:
@@ -299,7 +300,8 @@ while True:
     # Skip non-song media if strict mode is enabled and there is no 'id'
     if not current_media_info["id"] and strict_mode:
         print("Strict mode is enabled. Skipping non-song media.")
-        current_media_info = None
+        last_track = current_media_info["title"]
+        last_state = current_media_info["playback_status"]
         continue
     if show_notification:
         send_notification(
