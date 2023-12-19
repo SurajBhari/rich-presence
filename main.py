@@ -113,7 +113,7 @@ if __name__ != "__main__":
     exit(-1)  # this file should not be imported
 
 try:
-    image = PIL.Image.open("favidcon.ico")
+    image = PIL.Image.open("favicon.ico")
 except FileNotFoundError:  # fix this later
     import requests
 
