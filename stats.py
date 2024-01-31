@@ -1,5 +1,6 @@
 import json
 import os
+from time import sleep
 from datetime import datetime
 from flask import render_template, render_template_string, app, Flask
 
@@ -56,6 +57,8 @@ def show_stats():
     with open("temp.html", "w+") as f:
         f.write(html)
     os.system("start temp.html")
+    sleep(3)
+    os.system("del temp.html")
 
 
 if __name__ == "__main__":
