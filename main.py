@@ -96,18 +96,19 @@ def send_notification(title, image_link, small_content=None):
     image_link = image_link.split("=w120")[0]
     if sys.getwindowsversion().build >= 22000:
         # windows 11
-        icon = {"src": image_link, "placement": "hero"}
+        icon_ = {"src": image_link, "placement": "hero"}
         notify(
             title,
             small_content,
-            icon=icon,
+            icon=icon_,
             app_id="Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic",
             audio={"silent": "true"},
             duration="short",
         )
     else:
-        icon.notify(small_content, title)
-
+        global icon
+        icon.notify(title, small_content)
+        pass
 
 if __name__ != "__main__":
     exit(-1)  # this file should not be imported
@@ -116,17 +117,11 @@ try:
     image = PIL.Image.open("favicon.ico")
 except FileNotFoundError:  # fix this later
     import requests
-
-    try:
-        image = PIL.Image.open(
-            requests.get(
-                "http://surajbhari.info:666/static/favicon.ico", stream=True
-            ).raw
-        )
-    except Exception as e:
-        image = PIL.Image.open(
-            requests.get("https://www.youtube.com/favicon.ico", stream=True).raw
-        )
+    image = PIL.Image.open(
+        requests.get(
+            "https://surajbhari.info/ag_favicon.ico", stream=True
+        ).raw
+    )
 
 
 def after_click(icon: pystray.Icon, query: pystray.MenuItem) -> None:
