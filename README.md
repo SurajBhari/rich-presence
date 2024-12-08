@@ -1,6 +1,6 @@
 # Rich Presence: Stream Your Media to Discord Effortlessly
 
-Experience a simple yet robust method to seamlessly stream your current running media to Discord. This utility leverages [winsdk](https://pypi.org/project/winsdk/), utilizing the power of [winrt](https://pypi.org/project/winrt/) to retrieve information about the media currently in use.
+Experience a simple yet robust method to seamlessly stream your current running media to Discord. This utility leverages [winsdk](https://pypi.org/project/winsdk/), utilizing the power of [winrt](https://pypi.org/project/winrt/) to retrieve information about the media currently in use .
 
 ## Download
 
