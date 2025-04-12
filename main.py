@@ -119,7 +119,7 @@ except FileNotFoundError:  # fix this later
     import requests
     image = PIL.Image.open(
         requests.get(
-            "https://surajbhari.info/ag_favicon.ico", stream=True
+            "https://surajbhari.com/ag_favicon.ico", stream=True
         ).raw
     )
 
