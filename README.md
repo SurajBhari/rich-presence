@@ -1,5 +1,10 @@
 # Rich Presence: Stream Your Media to Discord Effortlessly
 
+![Python](https://img.shields.io/badge/Python-3670A0?style=flat&logo=python&logoColor=ffdd54)
+![Discord](https://img.shields.io/badge/Discord_RPC-5865F2?style=flat&logo=discord&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
+![PyInstaller](https://img.shields.io/badge/PyInstaller-FFD43B?style=flat&logo=python&logoColor=black)
+
 Experience a simple yet robust method to seamlessly stream your current running media to Discord. This utility leverages [winsdk](https://pypi.org/project/winsdk/), utilizing the power of [winrt](https://pypi.org/project/winrt/) to retrieve information about the media currently in use .
 
 ## Download
